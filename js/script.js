@@ -4,7 +4,7 @@
     Give the field an id of “other-title,” and add the placeholder text of "Your Job Role".
     Note: You'll need to add the "Other" job role input directly into the HTML and hide it initially with JS in order to get this feature to work when JS is disabled, which is a requirement below.
  */
-const $otherTitle =$('#other-title');
+const $otherTitle = $('#other-title');
 $otherTitle.hide();
 
 $('#title').change(function() {
@@ -62,6 +62,50 @@ $design.on('change', function() {
           }
       });
   }
+});
+
+
+/*
+”Register for Activities” section
+Project Warm Up: This section of the project, working with checkboxes, is one of the trickier parts of the project. For some helpful practice, check out the project Warm Up Checkboxes.
+Some events are at the same day and time as others. If the user selects a workshop, don't allow selection of a workshop at the same day and time -- you should disable the checkbox and visually indicate that the workshop in the competing time slot isn't available.
+When a user unchecks an activity, make sure that competing activities (if there are any) are no longer disabled.
+As a user selects activities, a running total should display below the list of checkboxes. For example, if the user selects "Main Conference", then Total: $200 should appear. If they add 1 workshop, the total should change to Total: $300.
+ */
+
+
+const $totalDiv = $('<div>Total: <span class="total"></span></div>');
+const activities = $('.activities');
+$(activities).append($totalDiv);
+$($totalDiv).hide();
+
+$('.activities input').on('change', function() {
+    let totalAmount = 0;
+    const name = $(this).attr('name');
+    const dateTime = $(this).attr('data-day-and-time');
+    const allCheckboxes = $('.activities input');
+
+
+     allCheckboxes.each(function() {
+         let target = this;
+         let targetName = $(target).attr('name');
+         let targetDateTime = $(target).attr('data-day-and-time');
+         if(!(targetName === name)) {
+             if(dateTime === targetDateTime) {
+                 $(target).attr('disabled', (_, val) => !val);
+                 $(target).parent().toggleClass('activities-disabled');
+             }
+         }
+         if($(target).is(":checked")) {
+             totalAmount +=  parseInt($(target).attr('data-cost'));
+         }
+     });
+    if(totalAmount > 0) {
+        $($totalDiv).show();
+        $('.total').text('$' + totalAmount);
+    } else {
+        $($totalDiv).hide();
+    }
 });
 
 

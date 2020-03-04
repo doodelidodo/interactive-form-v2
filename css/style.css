@@ -214,3 +214,17 @@ option {
 		clear: both;
 	}
 }
+
+
+.activities-disabled {
+	opacity: 0.3;
+}
+
+.activities div {
+	font-size: 20px;
+	text-decoration: underline;
+}
+
+.total {
+	font-weight: bold;
+}
