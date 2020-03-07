@@ -7,7 +7,7 @@
 const $otherTitle = $('#other-title');
 $otherTitle.hide();
 
-$('#title').change(function() {
+$('#title').on('change', function() {
     let selectedTitle = $(this).children("option:selected").val();
     if (selectedTitle === "other") {
         $otherTitle.show();
@@ -86,7 +86,7 @@ $('.activities input').on('change', function() {
     const allCheckboxes = $('.activities input');
 
 
-     allCheckboxes.each(function() {
+    allCheckboxes.each(function() {
          let target = this;
          let targetName = $(target).attr('name');
          let targetDateTime = $(target).attr('data-day-and-time');
@@ -99,7 +99,8 @@ $('.activities input').on('change', function() {
          if($(target).is(":checked")) {
              totalAmount +=  parseInt($(target).attr('data-cost'));
          }
-     });
+    });
+
     if(totalAmount > 0) {
         $($totalDiv).show();
         $('.total').text('$' + totalAmount);
@@ -118,50 +119,186 @@ When a user selects the "Bitcoin" payment option, the Bitcoin information should
 NOTE: The user should not be able to select the "Select Payment Method" option from the payment select menu, because the user should not be able to submit the form without a chosen payment option.
  */
 
-
+const payment = $('#payment');
 $('#payment option:eq(0)').attr('disabled', true);
-$('#payment option:eq(1)').attr('selected', 'selected');
-$('#payment').siblings('div').each(function() {
+$(payment).val('credit-card');
+
+$(payment).siblings('div').each(function() {
    if(!($(this).attr('id') === 'credit-card')) {
        $(this).hide();
    }
 });
 
-$('#payment').on('change', function() {
-
+$(payment).on('change', function() {
     let paymentOption = $(this).children("option:selected").val();
 
-    $('#payment').siblings('div').each(function() {
+    $(payment).siblings('div').each(function() {
             $(this).hide();
     });
 
-    $('#payment').siblings('div').each(function() {
+    $(payment).siblings('div').each(function() {
         if(paymentOption === $(this).attr('id')) {
             $(this).show();
         }
     });
 });
 
+const errorRequired = "This field is required";
+const errorNoNumber = "No Numbers allowed in this Field";
+const errorMail = "This is not a valid mail address";
+const errorCheckbox = "At least one activity has to be checked";
+const errorCreditCard = "The number has to be between 13 and 16 digits long";
+const errorZIP = "The ZIP has to be 5 digits long";
+const errorCVV = "The CVV has to be 3 digits long";
 
-
-
-
-
-function showOrHideTip(show, element) {
-    // show element when show is true, hide when false
-    if (show) {
-        element.style.display = "inherit";
-    } else {
-        element.style.display = "none";
+const setErrorMessage = function(element, errorMessage, errorBorderElement = "") {
+    $(element).text(errorMessage).css('display', 'inherit');
+    if(errorBorderElement) {
+        $(errorBorderElement).css('border-color', 'red');
     }
+};
+
+const setValidField = function(element, borderElement = "") {
+    $(element).css('display', 'none');
+    if(borderElement) {
+        $(borderElement).css('border-color', 'green');
+    }
+};
+
+function isValidUsername(username) {
+    return /^[a-z ,.'-]+$/i.test(username);
+}
+function isValidEmail(email) {
+    return /[^@]+@[^@]+\.[a-z]+/i.test(email);
 }
 
-function createListener(validator) {
-    return e => {
-        const text = e.target.value;
-        const valid = validator(text);
-        const showTip = text !== "" && !valid;
-        const tooltip = e.target.nextElementSibling;
-        showOrHideTip(showTip, tooltip);
-    };
+function isValidCreditCardNumber(creditCardNumber) {
+    return /^[0-9]{13,16}$/.test(creditCardNumber);
 }
+
+function isValidZIP(zip) {
+    return /^[0-9]{5}$/.test(zip);
+}
+
+function isValidCVV(cvv) {
+    return /^[0-9]{3}$/.test(cvv);
+}
+
+const validator = function (element, errorCode, validator) {
+    const valElement = $(element);
+    const valElementValue = $(valElement).val();
+    const valErrorSpan = $(valElement).next();
+    const valid = validator(valElementValue);
+    if(!valElementValue) {
+        setErrorMessage(valErrorSpan, errorRequired, valElement);
+        return false;
+    } else if (!valid) {
+        setErrorMessage(valErrorSpan, errorCode, valElement);
+        return false;
+    }else {
+        setValidField(valErrorSpan, valElement);
+        return true;
+    }
+};
+
+
+
+const validateName = () => {
+    return validator($('#name'), errorNoNumber, isValidUsername);
+};
+
+const validateMail = () => {
+    return validator($('#mail'), errorMail, isValidEmail);
+};
+
+const validateActivities = () => {
+    const checkboxes = $('.activities input');
+    const errorSpan = $('.activities .error-message');
+    let totalCheckboxes = 0;
+    $(checkboxes).each(function () {
+        if($(this).is(":checked")) {
+            totalCheckboxes += 1;
+        }
+    });
+    if(totalCheckboxes === 0) {
+        setErrorMessage(errorSpan, errorCheckbox);
+        return false;
+    } else {
+        setValidField(errorSpan);
+        return true;
+    }
+};
+
+const validateCreditCard = () => {
+    return validator($('#cc-num'), errorCreditCard, isValidCreditCardNumber);
+};
+
+const validateZIP = () => {
+    return validator($('#zip'), errorZIP, isValidZIP);
+};
+
+const validateCVV = () => {
+    return validator($('#cvv'), errorCVV, isValidCVV);
+};
+
+
+
+
+$('#name').on('input blur', () => {
+    validateName();
+});
+
+$('#mail').on('input blur', e => {
+    validateMail();
+});
+
+$('.activities input').on('change', e => {
+   validateActivities();
+});
+
+$('#cc-num').on('input blur', e => {
+    validateCreditCard();
+});
+
+$('#zip').on('input blur', e => {
+    validateZIP();
+});
+
+$('#cvv').on('input blur', e => {
+    validateCVV();
+});
+
+const validateForm = () => {
+    if( $('#payment').val() === "credit-card") {
+        return validateMail() &&
+        validateName() &&
+        validateActivities()&&
+        validateCreditCard() &&
+        validateZIP()&&
+        validateCVV();
+
+
+    }else return validateMail() &&
+        validateName() &&
+        validateActivities();
+
+};
+
+
+
+$('button').on('click', e => {
+    e.preventDefault();
+    if(validateForm()) {
+        $('form').submit();
+    } else {
+        validateName();
+        validateMail();
+        validateActivities();
+        if($('#payment').val() === "credit-card") {
+            validateCreditCard();
+            validateZIP();
+            validateCVV();
+        }
+    }
+});
+
