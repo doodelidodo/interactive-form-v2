@@ -89,7 +89,7 @@ $('.activities input').on('change', function() {
     /**
     * Iterates over all checkboxes when a checkbox is checked
     *  When date-day-and-time equals the checked checkbox, disable the checkbox and set a css class
-     *  else
+     *
     * */
     allCheckboxes.each(function() {
          let target = this;
@@ -118,7 +118,7 @@ $('.activities input').on('change', function() {
 
 
 /*
-Set the first payment Method entry to disabled and select the payment option 'credit-card'
+Set the first payment method entry to disabled and select the payment option 'credit-card'
  */
 const payment = $('#payment');
 $('#payment option:eq(0)').attr('disabled', true);
@@ -141,12 +141,10 @@ $(payment).on('change', function() {
     let paymentOption = $(this).children("option:selected").val();
 
     $(payment).siblings('div').each(function() {
-            $(this).hide();
-    });
-
-    $(payment).siblings('div').each(function() {
         if(paymentOption === $(this).attr('id')) {
             $(this).show();
+        }else {
+            $(this).hide();
         }
     });
 });
@@ -160,6 +158,7 @@ const errorCheckbox = "At least one activity has to be checked";
 const errorCreditCard = "The number has to be between 13 and 16 digits long";
 const errorZIP = "The ZIP has to be 5 digits long";
 const errorCVV = "The CVV has to be 3 digits long";
+const errorSubmit = "Plz fill out all required fields";
 
 /*
 * setErrorMessage
@@ -367,6 +366,7 @@ $('button').on('click', e => {
     if(validateForm()) {
         $('form').submit();
     } else {
+        setErrorMessage($('button').next(), errorSubmit, $('button'));
         validateName();
         validateMail();
         validateActivities();
