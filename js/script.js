@@ -1,52 +1,54 @@
+
 /*
-    ”Job Role” section
-    Include a text field that will be revealed when the "Other" option is selected from the "Job Role" drop down menu.
-    Give the field an id of “other-title,” and add the placeholder text of "Your Job Role".
-    Note: You'll need to add the "Other" job role input directly into the HTML and hide it initially with JS in order to get this feature to work when JS is disabled, which is a requirement below.
+When other job title has been chosen, show a text input field
  */
-const $otherTitle = $('#other-title');
-$otherTitle.hide();
+
+const otherTitle = $('#other-title');
+otherTitle.hide();
 
 $('#title').on('change', function() {
     let selectedTitle = $(this).children("option:selected").val();
     if (selectedTitle === "other") {
-        $otherTitle.show();
+        otherTitle.show();
     } else {
-        $otherTitle.hide();
+        otherTitle.hide();
     }
 });
 
-/*
-”T-Shirt Info” section
-Project Warm Up: Select and option elements are commonly found on web forms, but can be confusing to work with. For some helpful practice, check out the project Warm Up Selects and Options.
-    Until a theme is selected from the “Design” menu, no color options appear in the “Color” drop down and the “Color” field reads “Please select a T-shirt theme”.
-For the T-Shirt "Color" menu, after a user selects a theme, only display the color options that match the design selected in the "Design" menu.
-    If the user selects "Theme - JS Puns" then the color menu should only display "Cornflower Blue," "Dark Slate Grey," and "Gold."
-If the user selects "Theme - I ♥ JS" then the color menu should only display "Tomato," "Steel Blue," and "Dim Grey."
-When a new theme is selected from the "Design" menu, both the "Color" field and drop down menu is updated.
+//set color variables
+const design = $('#design');
+const colorsJSPuns = $('#colors-js-puns');
+const colors = $('#color option');
 
+//hide the color section
+colorsJSPuns.hide();
+
+//Hide color options and unselect the option
+const setColors = function(element) {
+    element.hide();
+    element.attr('selected', false);
+};
+
+/*
+design listener by change
+show only the colors, which the design has in stock
 */
 
-const $design = $('#design');
-const $colorsJSPuns = $('#colors-js-puns');
-const $colors = $('#color option');
-$colorsJSPuns.hide();
-
-
-$design.on('change', function() {
-  const $selectedOption = $(this).children("option:selected").val();
+design.on('change', function() {
+  const selectedOption = $(this).children("option:selected").val();
   let puns = $('#color option:contains("JS Puns")');
   let love = $('#color option:contains("♥")');
-  $colors.hide();
-  $colors.attr('selected', false);
+  setColors(colors);
 
-  if($selectedOption === 'js puns' || $selectedOption === 'heart js') {
-      $colorsJSPuns.show();
+  //show or hide the color div
+  if(selectedOption === 'js puns' || selectedOption === 'heart js') {
+      colorsJSPuns.show();
   } else {
-      $colorsJSPuns.hide();
+      colorsJSPuns.hide();
   }
 
-  if($selectedOption === 'js puns') {
+  //show the correct color options and set the first entry as selected
+  if(selectedOption === 'js puns') {
       $(puns).each(function(index) {
 
           $(this).show();
@@ -66,26 +68,29 @@ $design.on('change', function() {
 
 
 /*
-”Register for Activities” section
-Project Warm Up: This section of the project, working with checkboxes, is one of the trickier parts of the project. For some helpful practice, check out the project Warm Up Checkboxes.
-Some events are at the same day and time as others. If the user selects a workshop, don't allow selection of a workshop at the same day and time -- you should disable the checkbox and visually indicate that the workshop in the competing time slot isn't available.
-When a user unchecks an activity, make sure that competing activities (if there are any) are no longer disabled.
-As a user selects activities, a running total should display below the list of checkboxes. For example, if the user selects "Main Conference", then Total: $200 should appear. If they add 1 workshop, the total should change to Total: $300.
+create div for total cost
+append it at the end in activities
  */
-
-
 const $totalDiv = $('<div>Total: <span class="total"></span></div>');
 const activities = $('.activities');
 $(activities).append($totalDiv);
 $($totalDiv).hide();
 
+
+/*
+event listener on change when a activity is selected
+ */
 $('.activities input').on('change', function() {
     let totalAmount = 0;
     const name = $(this).attr('name');
     const dateTime = $(this).attr('data-day-and-time');
     const allCheckboxes = $('.activities input');
 
-
+    /**
+    * Iterates over all checkboxes when a checkbox is checked
+    *  When date-day-and-time equals the checked checkbox, disable the checkbox and set a css class
+     *  else
+    * */
     allCheckboxes.each(function() {
          let target = this;
          let targetName = $(target).attr('name');
@@ -96,11 +101,13 @@ $('.activities input').on('change', function() {
                  $(target).parent().toggleClass('activities-disabled');
              }
          }
+         //if checkbox checked, add data-cost to totalAmount
          if($(target).is(":checked")) {
              totalAmount +=  parseInt($(target).attr('data-cost'));
          }
     });
 
+    // if Amount > 0 show the total div
     if(totalAmount > 0) {
         $($totalDiv).show();
         $('.total').text('$' + totalAmount);
@@ -111,23 +118,24 @@ $('.activities input').on('change', function() {
 
 
 /*
-"Payment Info" section
-Display payment sections based on the payment option chosen in the select menu.
-The "Credit Card" payment option should be selected by default. Display the #credit-card div, and hide the "PayPal" and "Bitcoin" information. Payment option in the select menu should match the payment option displayed on the page.
-When a user selects the "PayPal" payment option, the PayPal information should display, and the credit card and “Bitcoin” information should be hidden.
-When a user selects the "Bitcoin" payment option, the Bitcoin information should display, and the credit card and “PayPal” information should be hidden.
-NOTE: The user should not be able to select the "Select Payment Method" option from the payment select menu, because the user should not be able to submit the form without a chosen payment option.
+Set the first payment Method entry to disabled and select the payment option 'credit-card'
  */
-
 const payment = $('#payment');
 $('#payment option:eq(0)').attr('disabled', true);
 $(payment).val('credit-card');
 
+
+//hide all other payment options
 $(payment).siblings('div').each(function() {
    if(!($(this).attr('id') === 'credit-card')) {
        $(this).hide();
    }
 });
+
+/*
+Event listener on payment by change.
+show only the payment option you have chosen and hide the other
+* */
 
 $(payment).on('change', function() {
     let paymentOption = $(this).children("option:selected").val();
@@ -143,6 +151,8 @@ $(payment).on('change', function() {
     });
 });
 
+
+// Error messages
 const errorRequired = "This field is required";
 const errorNoNumber = "No Numbers allowed in this Field";
 const errorMail = "This is not a valid mail address";
@@ -151,6 +161,15 @@ const errorCreditCard = "The number has to be between 13 and 16 digits long";
 const errorZIP = "The ZIP has to be 5 digits long";
 const errorCVV = "The CVV has to be 3 digits long";
 
+/*
+* setErrorMessage
+* param1: element
+* param2: errorMessage
+* param3: errorBorderElement (optional)
+*
+* Show error message with error message given
+* if BorderElement true, set border color to red
+* */
 const setErrorMessage = function(element, errorMessage, errorBorderElement = "") {
     $(element).text(errorMessage).css('display', 'inherit');
     if(errorBorderElement) {
@@ -158,6 +177,15 @@ const setErrorMessage = function(element, errorMessage, errorBorderElement = "")
     }
 };
 
+
+/*
+* setValidField
+* param1: element
+* param2: errorBorderElement (optional)
+*
+* hide error message
+* if BorderElement true, set border color to green
+* */
 const setValidField = function(element, borderElement = "") {
     $(element).css('display', 'none');
     if(borderElement) {
@@ -165,25 +193,43 @@ const setValidField = function(element, borderElement = "") {
     }
 };
 
+//validate the name. only a-z and some special characters are allowed
 function isValidUsername(username) {
     return /^[a-z ,.'-]+$/i.test(username);
 }
+
+//validates an email
 function isValidEmail(email) {
     return /[^@]+@[^@]+\.[a-z]+/i.test(email);
 }
 
+//validates a creditnumber. only digits and the length must be between 13 and 16
 function isValidCreditCardNumber(creditCardNumber) {
     return /^[0-9]{13,16}$/.test(creditCardNumber);
 }
 
+//validates a ZIP. It has to be digits the length has to be 5 digits long
 function isValidZIP(zip) {
     return /^[0-9]{5}$/.test(zip);
 }
 
+//validates a CVV. It has to be digits the length has to be 3 digits long
 function isValidCVV(cvv) {
     return /^[0-9]{3}$/.test(cvv);
 }
 
+
+/*
+validator
+param1: element
+param3: errorCode
+param4 validator
+
+first checks if element is empty and set the error for that
+second it checks if entry is wrong with the validator
+for both sets the error message
+else sets valid field
+ */
 const validator = function (element, errorCode, validator) {
     const valElement = $(element);
     const valElementValue = $(valElement).val();
@@ -202,15 +248,24 @@ const validator = function (element, errorCode, validator) {
 };
 
 
-
+//validator for Name
 const validateName = () => {
     return validator($('#name'), errorNoNumber, isValidUsername);
 };
-
+//validator for Mail
 const validateMail = () => {
     return validator($('#mail'), errorMail, isValidEmail);
 };
 
+/*
+this function can't use the validator because it has another structure
+
+validateActivities
+
+checks, if one of the checkboxes is checked
+if not set error message (no border)
+else set validField
+* */
 const validateActivities = () => {
     const checkboxes = $('.activities input');
     const errorSpan = $('.activities .error-message');
@@ -229,44 +284,60 @@ const validateActivities = () => {
     }
 };
 
+//validator for credit card
 const validateCreditCard = () => {
     return validator($('#cc-num'), errorCreditCard, isValidCreditCardNumber);
 };
-
+//validator for zip
 const validateZIP = () => {
     return validator($('#zip'), errorZIP, isValidZIP);
 };
 
+//validator for cvv
 const validateCVV = () => {
     return validator($('#cvv'), errorCVV, isValidCVV);
 };
 
 
 
-
+//event listener for name
 $('#name').on('input blur', () => {
     validateName();
 });
 
+//event listener for mail
 $('#mail').on('input blur', e => {
     validateMail();
 });
 
+//event listener for activities
 $('.activities input').on('change', e => {
    validateActivities();
 });
 
+//event listener for credit card
 $('#cc-num').on('input blur', e => {
     validateCreditCard();
 });
 
+//event listener for zip
 $('#zip').on('input blur', e => {
     validateZIP();
 });
 
+//event listener for cvv
 $('#cvv').on('input blur', e => {
     validateCVV();
 });
+
+
+/*
+* validateForm
+*
+* if payment method is credit-card
+* check all required input fields
+* else not check the credit-card fields
+*  */
 
 const validateForm = () => {
     if( $('#payment').val() === "credit-card") {
@@ -285,7 +356,12 @@ const validateForm = () => {
 };
 
 
+/*
+Event listener for the submit button
 
+if formValidator returns true submit the form
+else validate the form and show the error messages
+ */
 $('button').on('click', e => {
     e.preventDefault();
     if(validateForm()) {
