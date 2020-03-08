@@ -3,25 +3,25 @@
 When other job title has been chosen, show a text input field
  */
 
-const otherTitle = $('#other-title');
-otherTitle.hide();
+const $otherTitle = $('#other-title');
+$otherTitle.hide();
 
 $('#title').on('change', function() {
-    let selectedTitle = $(this).children("option:selected").val();
-    if (selectedTitle === "other") {
-        otherTitle.show();
+    let $selectedTitle = $(this).children("option:selected").val();
+    if ($selectedTitle === "other") {
+        $otherTitle.show();
     } else {
-        otherTitle.hide();
+        $otherTitle.hide();
     }
 });
 
 //set color variables
-const design = $('#design');
-const colorsJSPuns = $('#colors-js-puns');
-const colors = $('#color option');
+const $design = $('#design');
+const $colorsJSPuns = $('#colors-js-puns');
+const $colors = $('#color option');
 
 //hide the color section
-colorsJSPuns.hide();
+$colorsJSPuns.hide();
 
 //Hide color options and unselect the option
 const setColors = function(element) {
@@ -34,22 +34,22 @@ design listener by change
 show only the colors, which the design has in stock
 */
 
-design.on('change', function() {
-  const selectedOption = $(this).children("option:selected").val();
-  let puns = $('#color option:contains("JS Puns")');
-  let love = $('#color option:contains("♥")');
-  setColors(colors);
+$design.on('change', function() {
+  const $selectedOption = $(this).children("option:selected").val();
+  let $puns = $('#color option:contains("JS Puns")');
+  let $love = $('#color option:contains("♥")');
+  setColors($colors);
 
   //show or hide the color div
-  if(selectedOption === 'js puns' || selectedOption === 'heart js') {
-      colorsJSPuns.show();
+  if($selectedOption === 'js puns' || $selectedOption === 'heart js') {
+      $colorsJSPuns.show();
   } else {
-      colorsJSPuns.hide();
+      $colorsJSPuns.hide();
   }
 
   //show the correct color options and set the first entry as selected
-  if(selectedOption === 'js puns') {
-      $(puns).each(function(index) {
+  if($selectedOption === 'js puns') {
+      $($puns).each(function(index) {
 
           $(this).show();
           if(index === 0) {
@@ -57,7 +57,7 @@ design.on('change', function() {
           }
       });
   } else {
-      $(love).each(function(index) {
+      $($love).each(function(index) {
           $(this).show();
           if(index === 0) {
               $(this).attr('selected','selected');
@@ -72,8 +72,8 @@ create div for total cost
 append it at the end in activities
  */
 const $totalDiv = $('<div>Total: <span class="total"></span></div>');
-const activities = $('.activities');
-$(activities).append($totalDiv);
+const $activities = $('.activities');
+$($activities).append($totalDiv);
 $($totalDiv).hide();
 
 
@@ -82,21 +82,21 @@ event listener on change when a activity is selected
  */
 $('.activities input').on('change', function() {
     let totalAmount = 0;
-    const name = $(this).attr('name');
-    const dateTime = $(this).attr('data-day-and-time');
-    const allCheckboxes = $('.activities input');
+    const $name = $(this).attr('name');
+    const $dateTime = $(this).attr('data-day-and-time');
+    const $allCheckboxes = $('.activities input');
 
     /**
     * Iterates over all checkboxes when a checkbox is checked
     *  When date-day-and-time equals the checked checkbox, disable the checkbox and set a css class
      *
     * */
-    allCheckboxes.each(function() {
+    $allCheckboxes.each(function() {
          let target = this;
-         let targetName = $(target).attr('name');
-         let targetDateTime = $(target).attr('data-day-and-time');
-         if(!(targetName === name)) {
-             if(dateTime === targetDateTime) {
+         let $targetName = $(target).attr('name');
+         let $targetDateTime = $(target).attr('data-day-and-time');
+         if(!($targetName === $name)) {
+             if($dateTime === $targetDateTime) {
                  $(target).attr('disabled', (_, val) => !val);
                  $(target).parent().toggleClass('activities-disabled');
              }
@@ -120,13 +120,13 @@ $('.activities input').on('change', function() {
 /*
 Set the first payment method entry to disabled and select the payment option 'credit-card'
  */
-const payment = $('#payment');
+const $payment = $('#payment');
 $('#payment option:eq(0)').attr('disabled', true);
-$(payment).val('credit-card');
+$($payment).val('credit-card');
 
 
 //hide all other payment options
-$(payment).siblings('div').each(function() {
+$($payment).siblings('div').each(function() {
    if(!($(this).attr('id') === 'credit-card')) {
        $(this).hide();
    }
@@ -137,11 +137,11 @@ Event listener on payment by change.
 show only the payment option you have chosen and hide the other
 * */
 
-$(payment).on('change', function() {
-    let paymentOption = $(this).children("option:selected").val();
+$($payment).on('change', function() {
+    let $paymentOption = $(this).children("option:selected").val();
 
-    $(payment).siblings('div').each(function() {
-        if(paymentOption === $(this).attr('id')) {
+    $($payment).siblings('div').each(function() {
+        if($paymentOption === $(this).attr('id')) {
             $(this).show();
         }else {
             $(this).hide();
@@ -230,18 +230,18 @@ for both sets the error message
 else sets valid field
  */
 const validator = function (element, errorCode, validator) {
-    const valElement = $(element);
-    const valElementValue = $(valElement).val();
-    const valErrorSpan = $(valElement).next();
-    const valid = validator(valElementValue);
-    if(!valElementValue) {
-        setErrorMessage(valErrorSpan, errorRequired, valElement);
+    const $valElement = $(element);
+    const $valElementValue = $($valElement).val();
+    const $valErrorSpan = $($valElement).next();
+    const $valid = validator($valElementValue);
+    if(!$valElementValue) {
+        setErrorMessage($valErrorSpan, errorRequired, $valElement);
         return false;
-    } else if (!valid) {
-        setErrorMessage(valErrorSpan, errorCode, valElement);
+    } else if (!$valid) {
+        setErrorMessage($valErrorSpan, errorCode, $valElement);
         return false;
     }else {
-        setValidField(valErrorSpan, valElement);
+        setValidField($valErrorSpan, $valElement);
         return true;
     }
 };
@@ -266,19 +266,19 @@ if not set error message (no border)
 else set validField
 * */
 const validateActivities = () => {
-    const checkboxes = $('.activities input');
-    const errorSpan = $('.activities .error-message');
+    const $checkboxes = $('.activities input');
+    const $errorSpan = $('.activities .error-message');
     let totalCheckboxes = 0;
-    $(checkboxes).each(function () {
+    $($checkboxes).each(function () {
         if($(this).is(":checked")) {
             totalCheckboxes += 1;
         }
     });
     if(totalCheckboxes === 0) {
-        setErrorMessage(errorSpan, errorCheckbox);
+        setErrorMessage($errorSpan, errorCheckbox);
         return false;
     } else {
-        setValidField(errorSpan);
+        setValidField($errorSpan);
         return true;
     }
 };
